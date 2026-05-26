@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datenschutz – Lernpartner</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            color: #1a1a1a;
+            padding: 40px 16px 60px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.08);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .875rem;
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 28px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: 6px;
+        }
+
+        .last-updated {
+            font-size: .8125rem;
+            color: #9ca3af;
+            margin-bottom: 32px;
+        }
+
+        h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 28px 0 10px;
+        }
+
+        p {
+            font-size: .9375rem;
+            line-height: 1.65;
+            color: #4b5563;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin: 8px 0 10px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        ul li {
+            font-size: .9375rem;
+            line-height: 1.55;
+            color: #4b5563;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 20px;
+            font-size: .8125rem;
+            font-weight: 500;
+        }
+
+        .badge.green  { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge.red    { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .badge.blue   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+        .info-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin: 14px 0;
+        }
+
+        .info-box p { margin: 0; }
+
+        hr {
+            border: none;
+            border-top: 1px solid #f3f4f6;
+            margin: 32px 0;
+        }
+
+        .contact-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .contact-card p { margin: 0; color: #374151; }
+        .contact-card a { color: #6366f1; text-decoration: none; }
+        .contact-card a:hover { text-decoration: underline; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .875rem;
+            margin: 12px 0;
+        }
+
+        th {
+            text-align: left;
+            padding: 8px 12px;
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 9px 12px;
+            color: #4b5563;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a class="back-link" href="index.html">&#8592; Zurück zur App</a>
+
+    <h1>Datenschutzerklärung</h1>
+    <p class="last-updated">Zuletzt aktualisiert: Mai 2026</p>
+
+    <p>
+        Der Schutz deiner persönlichen Daten ist uns wichtig. Diese Datenschutzerklärung erklärt,
+        welche Daten wir erheben, wie wir sie verwenden und welche Rechte du hast.
+    </p>
+
+    <hr />
+
+    <h2>1. Welche Daten wir erheben</h2>
+    <p>Bei der Registrierung und Nutzung der Plattform speichern wir folgende Daten:</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Datenfeld</th>
+            <th>Zweck</th>
+            <th>Für andere sichtbar?</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Name</td>
+            <td>Personalisierung, Anzeige im Profil</td>
+            <td>Ja (nur Vorname)</td>
+        </tr>
+        <tr>
+            <td>E-Mail-Adresse</td>
+            <td>Anmeldung, Kommunikation</td>
+            <td>Nein – nie öffentlich</td>
+        </tr>
+        <tr>
+            <td>Passwort</td>
+            <td>Authentifizierung</td>
+            <td>Nein – verschlüsselt gespeichert</td>
+        </tr>
+        <tr>
+            <td>Klasse</td>
+            <td>Lernpartner-Matching</td>
+            <td>Ja</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>2. Datensicherheit</h2>
+    <p>Wir setzen technische Maßnahmen ein, um deine Daten zu schützen:</p>
+
+    <div class="badge-row">
+        <span class="badge green">&#10003; Passwörter gehasht (bcrypt)</span>
+        <span class="badge green">&#10003; Authentifizierung via JWT</span>
+        <span class="badge green">&#10003; HTTPS-Verbindung</span>
+        <span class="badge blue">&#9432; Keine Weitergabe an Dritte</span>
+    </div>
+
+    <div class="info-box">
+        <p>Passwörter werden niemals im Klartext gespeichert. Jedes Passwort wird vor
+            der Speicherung mit dem bcrypt-Algorithmus gehasht und gesalzt.</p>
+    </div>
+
+    <h2>3. Was andere Nutzer:innen sehen können</h2>
+    <p>Aus deinem Profil werden anderen Nutzer:innen nur folgende Angaben angezeigt:</p>
+    <ul>
+        <li>Vorname</li>
+        <li>Klasse / Jahrgang</li>
+    </ul>
+
+    <p>Folgende Daten werden <strong>niemals</strong> anderen Nutzer:innen angezeigt:</p>
+    <div class="badge-row">
+        <span class="badge red">&#10007; E-Mail-Adresse</span>
+        <span class="badge red">&#10007; Passwort</span>
+        <span class="badge red">&#10007; Interne Nutzer-ID</span>
+    </div>
+
+    <h2>4. Speicherdauer</h2>
+    <p>
+        Deine Daten werden so lange gespeichert, wie du ein aktives Konto besitzt.
+        Nach der Löschung deines Kontos werden alle personenbezogenen Daten innerhalb
+        von 30 Tagen endgültig gelöscht.
+    </p>
+
+    <h2>5. Deine Rechte</h2>
+    <p>Du hast jederzeit das Recht auf:</p>
+    <ul>
+        <li><strong>Auskunft</strong> – welche Daten wir über dich gespeichert haben</li>
+        <li><strong>Berichtigung</strong> – fehlerhafte Daten korrigieren zu lassen</li>
+        <li><strong>Löschung</strong> – dein Konto und alle Daten löschen zu lassen</li>
+        <li><strong>Widerspruch</strong> – gegen die Verarbeitung deiner Daten</li>
+    </ul>
+
+    <h2>6. Cookies und lokaler Speicher</h2>
+    <p>
+        Wir verwenden <strong>keinen Tracking-Cookie</strong>. Der Anmelde-Token (JWT)
+        wird ausschließlich im <code>localStorage</code> deines Browsers gespeichert und
+        verlässt deinen Browser nur zur Kommunikation mit unserem Server.
+    </p>
+
+    <h2>7. Kontakt & Verantwortliche Stelle</h2>
+    <div class="contact-card">
+        <p>Bei Fragen zum Datenschutz wende dich an:</p>
+        <p style="margin-top:8px;"><strong>Lernpartner-Projekt</strong><br/>
+            E-Mail: <a href="mailto:datenschutz@lernpartner.local">datenschutz@lernpartner.local</a></p>
+    </div>
+
+    <hr />
+
+    <p style="font-size:.8125rem; color:#9ca3af;">
+        Diese Datenschutzerklärung gilt für die Lernpartner-Plattform und richtet sich nach
+        den Anforderungen der DSGVO (Datenschutz-Grundverordnung).
+    </p>
+</div>
+</body>
+</html>
