@@ -7,6 +7,18 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
+// CORS erlauben
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+// index.html statisch servieren
+app.use(express.static(path.join(__dirname)));
+
 const DB_FILE = path.join(__dirname, 'data', 'users.json');
 const JWT_SECRET = 'lernpartner-secret-key-2024';
 

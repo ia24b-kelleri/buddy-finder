@@ -266,7 +266,7 @@
       }
 
       try {
-        const { ok, data } = await postJSON('/login', { email, password });
+        const { ok, data } = await postJSON('/login', { email, passwort: password });
         if (!ok) return showMsg('login-msg', data.message || 'Anmeldung fehlgeschlagen.', 'error');
 
         localStorage.setItem('token', data.token);
@@ -294,7 +294,7 @@
       }
 
       try {
-        const { ok, data } = await postJSON('/register', { name, email, password, klasse });
+        const { ok, data } = await postJSON('/register', { name, email, passwort: password, klasse });
         if (!ok) return showMsg('register-msg', data.message || 'Registrierung fehlgeschlagen.', 'error');
 
         showMsg('register-msg', 'Konto erstellt! Du kannst dich jetzt anmelden.', 'success');

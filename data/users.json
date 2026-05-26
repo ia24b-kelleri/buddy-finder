@@ -6,5 +6,13 @@
     "klasse": "AB24c",
     "passwort": "$2b$10$Sd5vXFjaolxysTxZhT9a3.YrGqrxUc7E7UJAAHumTLidIeM8pBKO6",
     "erstellt_am": "2026-05-26T11:48:25.975Z"
+  },
+  {
+    "id": "1779797191889",
+    "name": "Jannis",
+    "email": "kellergmeiurmrie@meir.com",
+    "klasse": "ab1",
+    "passwort": "$2b$10$ETEEEAWu/RebklvUPLMy5OVmiuP3yz0d4Ml7b6Tp0hDW/yRM.HsQC",
+    "erstellt_am": "2026-05-26T12:06:31.889Z"
   }
 ]
