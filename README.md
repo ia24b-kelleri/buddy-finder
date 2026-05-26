@@ -6,47 +6,27 @@ Simples Node.js/Express Backend mit JSON-File Storage.
 
 ```bash
 npm install
+```
+
+## Server starten
+
+**Normal (falls node im PATH ist):**
+```bash
 node server.js
 ```
 
+**Windows (falls node nicht erkannt wird):**
+```bash
+& "C:\Program Files\nodejs\node.exe" server.js
+```
+
+Danach im Browser öffnen: http://localhost:3000
+
 ## Endpoints
-
-### Registrieren
-```
-POST http://localhost:3000/register
-Content-Type: application/json
-
-{
-  "name": "Ivan Muster",
-  "email": "ivan@example.com",
-  "passwort": "sicheresPasswort123",
-  "klasse": "AB24c"
-}
-```
-
-### Login
-```
-POST http://localhost:3000/login
-Content-Type: application/json
-
-{
-  "email": "ivan@example.com",
-  "passwort": "sicheresPasswort123"
-}
-```
-→ Gibt ein **JWT Token** zurück
-
-### Profil anzeigen (Token nötig)
-```
-GET http://localhost:3000/profil
-Authorization: Bearer <dein-token>
-```
-
-### Alle User anzeigen (Token nötig)
-```
-GET http://localhost:3000/users
-Authorization: Bearer <dein-token>
-```
+- POST /register → Neuen User registrieren
+- POST /login → Einloggen & Token holen  
+- GET /profil → Eigenes Profil (Token nötig)
+- GET /users → Alle User (Token nötig)
 
 ## Daten
 User werden in `data/users.json` gespeichert.  
