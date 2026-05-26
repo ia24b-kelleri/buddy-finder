@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lernpartner</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1a1a1a;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.08);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+
+    .subtitle {
+      font-size: .875rem;
+      color: #6b7280;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: .8125rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input {
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      font-size: .9375rem;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      background: #fff;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+    }
+
+    button.primary {
+      width: 100%;
+      padding: 11px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: .9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .15s, transform .1s;
+    }
+
+    button.primary:hover  { background: #4f46e5; }
+    button.primary:active { transform: scale(.98); }
+
+    button.ghost {
+      background: none;
+      border: none;
+      color: #6366f1;
+      font-size: .875rem;
+      cursor: pointer;
+      padding: 0;
+      font-weight: 500;
+    }
+
+    button.ghost:hover { text-decoration: underline; }
+
+    .toggle-row {
+      margin-top: 22px;
+      text-align: center;
+      font-size: .875rem;
+      color: #6b7280;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      font-size: .875rem;
+      display: none;
+    }
+
+    .message.error   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; display: block; }
+    .message.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; display: block; }
+
+    /* Dashboard */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .dashboard-header h1 { font-size: 1.25rem; }
+
+    button.logout {
+      padding: 7px 14px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 7px;
+      font-size: .8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+
+    button.logout:hover { background: #e5e7eb; }
+
+    .dashboard-body {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      font-size: .875rem;
+      color: #4b5563;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- Login -->
+    <div id="view-login">
+      <h1>Anmelden</h1>
+      <p class="subtitle">Melde dich mit deinem Konto an.</p>
+      <form id="form-login" novalidate>
+        <div class="field">
+          <label for="login-email">E-Mail</label>
+          <input type="email" id="login-email" placeholder="name@beispiel.de" required />
+        </div>
+        <div class="field">
+          <label for="login-password">Passwort</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="primary">Anmelden</button>
+        <div id="login-msg" class="message"></div>
+      </form>
+      <div class="toggle-row">
+        <span>Noch kein Konto?</span>
+        <button class="ghost" onclick="showView('register')">Registrieren</button>
+      </div>
+    </div>
+
+    <!-- Register -->
+    <div id="view-register" class="hidden">
+      <h1>Registrieren</h1>
+      <p class="subtitle">Erstelle ein neues Konto.</p>
+      <form id="form-register" novalidate>
+        <div class="field">
+          <label for="reg-name">Name</label>
+          <input type="text" id="reg-name" placeholder="Max Mustermann" required />
+        </div>
+        <div class="field">
+          <label for="reg-email">E-Mail</label>
+          <input type="email" id="reg-email" placeholder="name@beispiel.de" required />
+        </div>
+        <div class="field">
+          <label for="reg-password">Passwort</label>
+          <input type="password" id="reg-password" placeholder="Mindestens 6 Zeichen" required />
+        </div>
+        <div class="field">
+          <label for="reg-class">Klasse</label>
+          <input type="text" id="reg-class" placeholder="z. B. 10a" required />
+        </div>
+        <button type="submit" class="primary">Registrieren</button>
+        <div id="register-msg" class="message"></div>
+      </form>
+      <div class="toggle-row">
+        <span>Bereits ein Konto?</span>
+        <button class="ghost" onclick="showView('login')">Anmelden</button>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="view-dashboard" class="hidden">
+      <div class="dashboard-header">
+        <h1 id="welcome-text">Willkommen!</h1>
+        <button class="logout" onclick="logout()">Abmelden</button>
+      </div>
+      <div class="dashboard-body">
+        Du bist erfolgreich eingeloggt.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = 'http://localhost:3000';
+
+    function showView(name) {
+      ['login', 'register', 'dashboard'].forEach(v =>
+        document.getElementById('view-' + v).classList.toggle('hidden', v !== name)
+      );
+    }
+
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'message ' + type;
+    }
+
+    function clearMsg(id) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      el.className = 'message';
+    }
+
+    async function postJSON(path, body) {
+      const res = await fetch(API + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    document.getElementById('form-login').addEventListener('submit', async e => {
+      e.preventDefault();
+      clearMsg('login-msg');
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        return showMsg('login-msg', 'Bitte alle Felder ausfüllen.', 'error');
+      }
+
+      try {
+        const { ok, data } = await postJSON('/login', { email, password });
+        if (!ok) return showMsg('login-msg', data.message || 'Anmeldung fehlgeschlagen.', 'error');
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userName', data.name || email);
+        document.getElementById('welcome-text').textContent = 'Willkommen, ' + (data.name || email) + '!';
+        showView('dashboard');
+      } catch {
+        showMsg('login-msg', 'Server nicht erreichbar.', 'error');
+      }
+    });
+
+    document.getElementById('form-register').addEventListener('submit', async e => {
+      e.preventDefault();
+      clearMsg('register-msg');
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const klasse   = document.getElementById('reg-class').value.trim();
+
+      if (!name || !email || !password || !klasse) {
+        return showMsg('register-msg', 'Bitte alle Felder ausfüllen.', 'error');
+      }
+      if (password.length < 6) {
+        return showMsg('register-msg', 'Passwort muss mindestens 6 Zeichen lang sein.', 'error');
+      }
+
+      try {
+        const { ok, data } = await postJSON('/register', { name, email, password, klasse });
+        if (!ok) return showMsg('register-msg', data.message || 'Registrierung fehlgeschlagen.', 'error');
+
+        showMsg('register-msg', 'Konto erstellt! Du kannst dich jetzt anmelden.', 'success');
+        document.getElementById('form-register').reset();
+        setTimeout(() => showView('login'), 1800);
+      } catch {
+        showMsg('register-msg', 'Server nicht erreichbar.', 'error');
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userName');
+      showView('login');
+    }
+
+    // Auto-login falls Token vorhanden
+    (function init() {
+      const token = localStorage.getItem('token');
+      const name  = localStorage.getItem('userName');
+      if (token) {
+        document.getElementById('welcome-text').textContent = 'Willkommen, ' + (name || 'Nutzer') + '!';
+        showView('dashboard');
+      } else {
+        showView('login');
+      }
+    })();
+  </script>
+</body>
+</html>
