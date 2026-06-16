@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anfragen – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header" id="app-header"></div>
+    <nav class="nav" id="app-nav"></nav>
+
+    <div class="panel">
+      <h2>Kontaktanfragen</h2>
+      <p class="hint">Eingehende Anfragen kannst du annehmen oder ablehnen.</p>
+      <div id="anfragen-msg" class="message"></div>
+
+      <div class="section-label">Eingehend</div>
+      <div id="anfragen-eingehend"></div>
+
+      <div class="section-label">Ausgehend</div>
+      <div id="anfragen-ausgehend"></div>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function statusText(s) {
+      return { offen: 'offen', akzeptiert: 'akzeptiert ✅', abgelehnt: 'abgelehnt ✕' }[s] || s;
+    }
+
+    function eingehendKarte(a) {
+      const kinder = [
+        el('div', { class: 'buddy-name', text: 'Von: ' + a.vonName }),
+        el('div', { class: 'buddy-sub', text: a.nachricht || '(keine Nachricht)' }),
+        el('div', { class: 'buddy-sub', text: 'Status: ' + statusText(a.status) }),
+      ];
+      if (a.status === 'offen') {
+        kinder.push(el('div', { class: 'row-actions' }, [
+          el('button', { class: 'mini accept', text: 'Annehmen', onclick: () => beantworte(a.id, 'akzeptiert') }),
+          el('button', { class: 'mini reject', text: 'Ablehnen', onclick: () => beantworte(a.id, 'abgelehnt') }),
+        ]));
+      }
+      return el('div', { class: 'anfrage-card' }, kinder);
+    }
+
+    function ausgehendKarte(a) {
+      return el('div', { class: 'anfrage-card' }, [
+        el('div', { class: 'buddy-name', text: 'An: ' + a.anName }),
+        el('div', { class: 'buddy-sub', text: a.nachricht || '(keine Nachricht)' }),
+        el('div', { class: 'buddy-sub', text: 'Status: ' + statusText(a.status) }),
+      ]);
+    }
+
+    async function beantworte(id, status) {
+      const { ok, data } = await api('/anfragen/' + id, { method: 'PUT', body: { status } });
+      if (!ok) return showMsg('anfragen-msg', data.error || 'Fehler.', 'error');
+      ladeAnfragen();
+    }
+
+    async function ladeAnfragen() {
+      clearMsg('anfragen-msg');
+      const { ok, data } = await api('/anfragen');
+      if (!ok) return showMsg('anfragen-msg', data.error || 'Fehler beim Laden.', 'error');
+
+      const ein = document.getElementById('anfragen-eingehend');
+      const aus = document.getElementById('anfragen-ausgehend');
+      ein.replaceChildren(...(data.eingehend.length
+        ? data.eingehend.map(eingehendKarte)
+        : [el('div', { class: 'empty', text: 'Keine eingehenden Anfragen.' })]));
+      aus.replaceChildren(...(data.ausgehend.length
+        ? data.ausgehend.map(ausgehendKarte)
+        : [el('div', { class: 'empty', text: 'Keine ausgehenden Anfragen.' })]));
+    }
+
+    if (requireAuth()) {
+      renderShell('anfragen.html');
+      ladeAnfragen();
+    }
+  </script>
+</body>
+</html>
