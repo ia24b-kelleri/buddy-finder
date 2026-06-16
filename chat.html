@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header" id="app-header"></div>
+    <nav class="nav" id="app-nav"></nav>
+
+    <div class="panel">
+      <h2>Chat</h2>
+      <p class="hint">Schreibe mit deinen Lernpartner:innen. Wähle links eine Unterhaltung.</p>
+      <div id="chat-msg" class="message"></div>
+
+      <div class="chat-layout">
+        <div class="chat-list" id="chat-list"></div>
+
+        <div class="chat-main">
+          <div class="chat-head" id="chat-head">Keine Unterhaltung ausgewählt</div>
+          <div class="chat-thread" id="chat-thread">
+            <div class="empty">Wähle links eine Person oder starte einen Chat über „Buddies finden".</div>
+          </div>
+          <form class="chat-composer" id="chat-composer" style="display:none">
+            <input type="text" id="chat-input" placeholder="Nachricht schreiben …" autocomplete="off" maxlength="1000" />
+            <button type="submit" class="primary">Senden</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let aktivePartnerId = null;
+    let aktivePartnerName = '';
+    let pollTimer = null;
+
+    // ── Gesprächsliste ──
+    async function ladeChats() {
+      const { ok, data } = await api('/chats');
+      if (!ok) return;
+      const liste = document.getElementById('chat-list');
+      if (!data.chats.length) {
+        liste.replaceChildren(el('div', { class: 'empty', text: 'Noch keine Chats.' }));
+        return;
+      }
+      liste.replaceChildren(...data.chats.map(c =>
+        el('button', {
+          class: 'chat-list-item' + (c.partnerId === aktivePartnerId ? ' active' : ''),
+          onclick: () => oeffneChat(c.partnerId, c.partnerName),
+        }, [
+          el('div', { class: 'cl-name', text: c.partnerName }),
+          el('div', { class: 'cl-last', text: c.letzteNachricht }),
+        ])
+      ));
+    }
+
+    // ── Verlauf ──
+    async function ladeVerlauf() {
+      if (!aktivePartnerId) return;
+      const { ok, data } = await api('/nachrichten/' + aktivePartnerId);
+      if (!ok) return;
+      const thread = document.getElementById('chat-thread');
+      if (!data.nachrichten.length) {
+        thread.replaceChildren(el('div', { class: 'empty', text: 'Noch keine Nachrichten – schreib die erste!' }));
+        return;
+      }
+      const amEnde = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 60;
+      thread.replaceChildren(...data.nachrichten.map(n =>
+        el('div', { class: 'bubble ' + (n.vonMir ? 'mine' : 'theirs') }, [
+          n.text,
+          el('span', { class: 'meta', text: new Date(n.erstellt_am).toLocaleString('de-CH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) }),
+        ])
+      ));
+      if (amEnde) thread.scrollTop = thread.scrollHeight;
+    }
+
+    function oeffneChat(partnerId, partnerName) {
+      aktivePartnerId = partnerId;
+      aktivePartnerName = partnerName;
+      document.getElementById('chat-head').textContent = partnerName;
+      document.getElementById('chat-composer').style.display = 'flex';
+      document.getElementById('chat-input').focus();
+      ladeVerlauf();
+      ladeChats(); // aktiven Eintrag markieren
+
+      // Live-Polling alle 3 Sekunden
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => { ladeVerlauf(); ladeChats(); }, 3000);
+    }
+
+    // ── Senden ──
+    document.getElementById('chat-composer').addEventListener('submit', async e => {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text || !aktivePartnerId) return;
+      input.value = '';
+      const { ok, data } = await api('/nachrichten', { method: 'POST', body: { an: aktivePartnerId, text } });
+      if (!ok) { showMsg('chat-msg', data.error || 'Senden fehlgeschlagen.', 'error'); return; }
+      clearMsg('chat-msg');
+      await ladeVerlauf();
+      await ladeChats();
+      const thread = document.getElementById('chat-thread');
+      thread.scrollTop = thread.scrollHeight;
+    });
+
+    // Polling stoppen, wenn die Seite verlassen wird
+    window.addEventListener('beforeunload', () => { if (pollTimer) clearInterval(pollTimer); });
+
+    if (requireAuth()) {
+      renderShell('chat.html');
+      ladeChats();
+      // Direktstart via ?partner=<id>&name=<name> (z. B. aus der Buddy-Liste)
+      const params = new URLSearchParams(location.search);
+      const partner = params.get('partner');
+      const name = params.get('name');
+      if (partner) oeffneChat(partner, name || 'Chat');
+    }
+  </script>
+</body>
+</html>

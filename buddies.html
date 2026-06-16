@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buddies finden – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header" id="app-header"></div>
+    <nav class="nav" id="app-nav"></nav>
+
+    <div class="panel">
+      <h2>Passende Lernpartner</h2>
+      <p class="hint">Vorschläge basieren auf gemeinsamen Fächern, Interessen und Lernzeiten.</p>
+      <div id="buddies-msg" class="message"></div>
+      <div id="buddies-list"></div>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function buddyKarte(b) {
+      const statusKlasse = b.status === 'pausiert' ? 'pause' : 'aktiv';
+      const chips = el('div', { class: 'chip-row' }, [
+        ...b.gemeinsameFaecher.map(f => chip('📘 ' + f, 'match')),
+        ...b.gemeinsameInteressen.map(i => chip('★ ' + i, 'match')),
+        ...(b.zeitUeberlappungen ? [chip('🕑 ' + b.zeitUeberlappungen + ' gemeinsame Zeit(en)', 'match')] : []),
+      ]);
+      return el('div', { class: 'buddy-card' }, [
+        el('div', { class: 'buddy-top' }, [
+          el('div', {}, [
+            el('div', { class: 'buddy-name' }, [
+              b.name + ' ',
+              el('span', { class: 'status-pill ' + statusKlasse, text: b.status }),
+            ]),
+            el('div', { class: 'buddy-sub', text: 'Klasse: ' + (b.klasse || '–') }),
+          ]),
+          el('span', { class: 'score-badge', text: 'Match ' + b.score }),
+        ]),
+        chips,
+        el('div', { class: 'row-actions' }, [
+          el('button', { class: 'secondary', text: 'Kontaktieren', onclick: () => kontaktieren(b) }),
+          el('a', { class: 'secondary', href: 'chat.html?partner=' + encodeURIComponent(b.id) + '&name=' + encodeURIComponent(b.name), text: 'Chat starten' }),
+        ]),
+      ]);
+    }
+
+    async function kontaktieren(b) {
+      const nachricht = prompt('Nachricht an ' + b.name + ' (optional):', 'Hi, wollen wir zusammen lernen?');
+      if (nachricht === null) return;
+      const { ok, data } = await api('/anfragen', { method: 'POST', body: { an: b.id, nachricht } });
+      showMsg('buddies-msg', ok ? 'Anfrage an ' + b.name + ' gesendet!' : (data.error || 'Fehler.'), ok ? 'success' : 'error');
+    }
+
+    async function ladeBuddies() {
+      const liste = document.getElementById('buddies-list');
+      liste.replaceChildren(el('div', { class: 'empty', text: 'Lädt …' }));
+      const { ok, data } = await api('/buddies');
+      if (!ok) { liste.replaceChildren(); return showMsg('buddies-msg', data.error || 'Fehler beim Laden.', 'error'); }
+      if (!data.buddies.length) {
+        liste.replaceChildren(el('div', { class: 'empty',
+          text: 'Noch keine passenden Lernpartner gefunden. Ergänze Fächer, Interessen und Lernzeiten in deinem Profil.' }));
+        return;
+      }
+      liste.replaceChildren(...data.buddies.map(buddyKarte));
+    }
+
+    if (requireAuth()) {
+      renderShell('buddies.html');
+      ladeBuddies();
+    }
+  </script>
+</body>
+</html>

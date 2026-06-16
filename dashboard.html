@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Übersicht – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header" id="app-header"></div>
+    <nav class="nav" id="app-nav"></nav>
+
+    <div class="panel">
+      <h2>Übersicht</h2>
+      <p class="hint">Willkommen bei BuddyFinder – finde Lernpartner:innen, die zu dir passen.</p>
+
+      <div class="tiles">
+        <a class="tile" href="profil.html">
+          <div class="tile-icon">📝</div>
+          <div class="tile-title">Mein Profil</div>
+          <div class="tile-desc">Fächer, Interessen und Lernzeiten pflegen</div>
+        </a>
+        <a class="tile" href="buddies.html">
+          <div class="tile-icon">🤝</div>
+          <div class="tile-title">Buddies finden</div>
+          <div class="tile-desc">Passende Lernpartner:innen entdecken</div>
+        </a>
+        <a class="tile" href="anfragen.html">
+          <div class="tile-icon">✉️</div>
+          <div class="tile-title">Anfragen</div>
+          <div class="tile-desc">Kontaktanfragen senden und beantworten</div>
+        </a>
+      </div>
+
+      <div id="hinweis" class="message"></div>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if (requireAuth()) {
+      renderShell('dashboard.html');
+      // Sanfter Hinweis, falls das Profil noch leer ist.
+      (async () => {
+        const { ok, data } = await api('/profil');
+        if (ok) {
+          const p = data.profil || {};
+          if (!(p.faecher || []).length && !(p.interessen || []).length) {
+            showMsg('hinweis', 'Tipp: Fülle zuerst dein Profil aus, damit wir Buddies vorschlagen können.', 'info');
+          }
+        }
+      })();
+    }
+  </script>
+</body>
+</html>

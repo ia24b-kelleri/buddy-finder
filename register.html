@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrieren – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="center">
+  <div class="card">
+    <h1>Registrieren</h1>
+    <p class="subtitle">Erstelle ein neues Konto.</p>
+
+    <form id="form-register" novalidate>
+      <div class="field">
+        <label for="reg-name">Name</label>
+        <input type="text" id="reg-name" placeholder="Max Mustermann" required />
+      </div>
+      <div class="field">
+        <label for="reg-email">E-Mail</label>
+        <input type="email" id="reg-email" placeholder="name@beispiel.de" required />
+      </div>
+      <div class="field">
+        <label for="reg-password">Passwort</label>
+        <input type="password" id="reg-password" placeholder="Mindestens 6 Zeichen" required />
+      </div>
+      <div class="field">
+        <label for="reg-class">Klasse</label>
+        <input type="text" id="reg-class" placeholder="z. B. 10a" required />
+      </div>
+      <button type="submit" class="primary">Registrieren</button>
+      <div id="register-msg" class="message"></div>
+    </form>
+
+    <div class="toggle-row">
+      <span>Bereits ein Konto?</span>
+      <a class="linklike" href="index.html">Anmelden</a>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.getElementById('form-register').addEventListener('submit', async e => {
+      e.preventDefault();
+      clearMsg('register-msg');
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const passwort = document.getElementById('reg-password').value;
+      const klasse = document.getElementById('reg-class').value.trim();
+
+      if (!name || !email || !passwort || !klasse) return showMsg('register-msg', 'Bitte alle Felder ausfüllen.', 'error');
+      if (passwort.length < 6) return showMsg('register-msg', 'Passwort muss mindestens 6 Zeichen lang sein.', 'error');
+
+      try {
+        const { ok, data } = await api('/register', { method: 'POST', body: { name, email, passwort, klasse } });
+        if (!ok) return showMsg('register-msg', data.error || 'Registrierung fehlgeschlagen.', 'error');
+        showMsg('register-msg', 'Konto erstellt! Du wirst zur Anmeldung weitergeleitet …', 'success');
+        document.getElementById('form-register').reset();
+        setTimeout(() => location.href = 'index.html', 1600);
+      } catch {
+        showMsg('register-msg', 'Server nicht erreichbar. Läuft das Backend (npm start)?', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

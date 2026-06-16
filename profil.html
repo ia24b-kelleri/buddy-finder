@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mein Profil – BuddyFinder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header" id="app-header"></div>
+    <nav class="nav" id="app-nav"></nav>
+
+    <div class="panel">
+      <h2>Mein Lernprofil</h2>
+      <p class="hint">Gib Fächer, Interessen und Lernzeiten an – darauf basieren deine Vorschläge.</p>
+
+      <form id="form-profil" novalidate>
+        <div class="field">
+          <label for="p-faecher">Fächer (mit Komma trennen)</label>
+          <input type="text" id="p-faecher" placeholder="z. B. Mathematik, Informatik, Englisch" />
+          <div class="chip-row" id="preview-faecher"></div>
+        </div>
+        <div class="field">
+          <label for="p-interessen">Interessen (mit Komma trennen)</label>
+          <input type="text" id="p-interessen" placeholder="z. B. KI, Gaming, Musik" />
+          <div class="chip-row" id="preview-interessen"></div>
+        </div>
+        <div class="field">
+          <label>Lernzeiten</label>
+          <div id="zeiten-container"></div>
+          <button type="button" class="secondary" style="align-self:flex-start;margin-top:4px" id="btn-zeit">+ Zeit hinzufügen</button>
+        </div>
+        <div class="field">
+          <label for="p-status">Status</label>
+          <select id="p-status">
+            <option value="sucht aktiv">Sucht aktiv Lernpartner</option>
+            <option value="pausiert">Pausiert</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="p-bio">Kurzbeschreibung (optional)</label>
+          <textarea id="p-bio" maxlength="500" placeholder="Erzähl kurz, wie du am liebsten lernst …"></textarea>
+        </div>
+        <button type="submit" class="primary">Profil speichern</button>
+        <div id="profil-msg" class="message"></div>
+      </form>
+
+      <div class="section-label">Konto</div>
+      <button class="danger" id="btn-loeschen">Konto &amp; alle Daten löschen</button>
+    </div>
+
+    <footer><a href="datenschutz.html">Datenschutz</a></footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+    function zeitZeileHinzufuegen(tag = 'Mo', von = '18:00', bis = '20:00') {
+      const select = el('select', {},
+        WOCHENTAGE.map(t => el('option', { value: t, ...(t === tag ? { selected: 'selected' } : {}), text: t })));
+      const reihe = el('div', { class: 'zeit-row' }, [
+        select,
+        el('input', { type: 'time', value: von }),
+        el('input', { type: 'time', value: bis }),
+        el('button', { type: 'button', class: 'mini remove', text: '✕', onclick: ev => ev.target.closest('.zeit-row').remove() }),
+      ]);
+      document.getElementById('zeiten-container').append(reihe);
+    }
+
+    function sammleZeiten() {
+      return [...document.querySelectorAll('#zeiten-container .zeit-row')].map(r => {
+        const [sel, von, bis] = r.querySelectorAll('select, input');
+        return { tag: sel.value, von: von.value, bis: bis.value };
+      }).filter(z => z.von && z.bis);
+    }
+
+    function listePreview(inputId, previewId) {
+      const werte = document.getElementById(inputId).value.split(',').map(s => s.trim()).filter(Boolean);
+      document.getElementById(previewId).replaceChildren(...werte.map(w => chip(w)));
+    }
+
+    async function ladeProfil() {
+      const { ok, data } = await api('/profil');
+      if (!ok) return;
+      const p = data.profil || {};
+      document.getElementById('p-faecher').value = (p.faecher || []).join(', ');
+      document.getElementById('p-interessen').value = (p.interessen || []).join(', ');
+      document.getElementById('p-status').value = p.status || 'sucht aktiv';
+      document.getElementById('p-bio').value = p.bio || '';
+      listePreview('p-faecher', 'preview-faecher');
+      listePreview('p-interessen', 'preview-interessen');
+      document.getElementById('zeiten-container').replaceChildren();
+      (p.lernzeiten || []).forEach(z => zeitZeileHinzufuegen(z.tag, z.von, z.bis));
+    }
+
+    if (requireAuth()) {
+      renderShell('profil.html');
+      ladeProfil();
+
+      document.getElementById('p-faecher').addEventListener('input', () => listePreview('p-faecher', 'preview-faecher'));
+      document.getElementById('p-interessen').addEventListener('input', () => listePreview('p-interessen', 'preview-interessen'));
+      document.getElementById('btn-zeit').addEventListener('click', () => zeitZeileHinzufuegen());
+
+      document.getElementById('form-profil').addEventListener('submit', async e => {
+        e.preventDefault();
+        clearMsg('profil-msg');
+        const body = {
+          faecher: document.getElementById('p-faecher').value.split(',').map(s => s.trim()).filter(Boolean),
+          interessen: document.getElementById('p-interessen').value.split(',').map(s => s.trim()).filter(Boolean),
+          lernzeiten: sammleZeiten(),
+          status: document.getElementById('p-status').value,
+          bio: document.getElementById('p-bio').value,
+        };
+        const { ok, data } = await api('/profil', { method: 'PUT', body });
+        showMsg('profil-msg', ok ? 'Profil gespeichert!' : (data.error || 'Speichern fehlgeschlagen.'), ok ? 'success' : 'error');
+      });
+
+      document.getElementById('btn-loeschen').addEventListener('click', async () => {
+        if (!confirm('Konto und alle Daten endgültig löschen? Das kann nicht rückgängig gemacht werden.')) return;
+        const { ok } = await api('/profil', { method: 'DELETE' });
+        if (ok) { alert('Dein Konto wurde gelöscht.'); logout(); }
+      });
+    }
+  </script>
+</body>
+</html>

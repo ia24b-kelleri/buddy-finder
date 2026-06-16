@@ -1,0 +1,12 @@
+# Abhängigkeiten
+node_modules/
+
+# Umgebungsvariablen / Secrets – niemals committen!
+.env
+
+# Laufzeit-Daten mit Personenbezug (E-Mails, Passwort-Hashes) – nicht committen!
+data/*.json
+
+# Logs / OS
+*.log
+.DS_Store
