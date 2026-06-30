@@ -158,6 +158,35 @@ test('Chat: an sich selbst schreiben -> 400', async () => {
   assert.equal(r.status, 400);
 });
 
+test('Chat blockiert ohne akzeptierte Anfrage', async () => {
+  const a = await registriereUndLogin('block-a@b.de', 'BlockA');
+  const b = await registriereUndLogin('block-b@b.de', 'BlockB');
+
+  const send = await req('/nachrichten', { method: 'POST', token: a.token, body: { an: b.id, text: 'Hallo!' } });
+  assert.equal(send.status, 403);
+
+  const verlauf = await req('/nachrichten/' + b.id, { token: a.token });
+  assert.equal(verlauf.status, 403);
+});
+
+test('Chat funktioniert nach akzeptierter Anfrage', async () => {
+  const a = await registriereUndLogin('allow-a@b.de', 'AllowA');
+  const b = await registriereUndLogin('allow-b@b.de', 'AllowB');
+
+  const anfrageRes = await req('/anfragen', { method: 'POST', token: a.token, body: { an: b.id } });
+  assert.equal(anfrageRes.status, 201);
+  const { data: eingang } = await req('/anfragen', { token: b.token });
+  const anfrageId = eingang.eingehend[0].id;
+  await req('/anfragen/' + anfrageId, { method: 'PUT', token: b.token, body: { status: 'akzeptiert' } });
+
+  const send = await req('/nachrichten', { method: 'POST', token: a.token, body: { an: b.id, text: 'Hi!' } });
+  assert.equal(send.status, 201);
+
+  const verlauf = await req('/nachrichten/' + b.id, { token: a.token });
+  assert.equal(verlauf.status, 200);
+  assert.equal(verlauf.data.nachrichten.length, 1);
+});
+
 test('Konto löschen entfernt User (MVP-08)', async () => {
   const { token } = await registriereUndLogin('loeschen@b.de', 'Leo');
   const del = await req('/profil', { method: 'DELETE', token });

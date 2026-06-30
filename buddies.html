@@ -40,12 +40,11 @@
             el('div', { class: 'buddy-sub', text: 'Klasse: ' + (b.klasse || '–') }),
             el('div', { class: 'buddy-sub', text: 'Fächer: ' + (b.faecher.length ? b.faecher.join(', ') : '–') }),
           ]),
-          el('span', { class: 'score-badge', text: 'Match ' + b.prozent + ' %' }),
+          el('span', { class: 'score-badge', text: b.matchProzent + '% Match' }),
         ]),
         chips,
         el('div', { class: 'row-actions' }, [
-          ...(b.verbunden ? [] : [el('button', { class: 'secondary', text: 'Kontaktieren', onclick: () => kontaktieren(b) })]),
-          ...(b.verbunden ? [el('a', { class: 'secondary', href: 'chat.html?partner=' + encodeURIComponent(b.id) + '&name=' + encodeURIComponent(b.name), text: 'Chat starten' })] : []),
+          el('button', { class: 'secondary', text: 'Kontaktieren', onclick: () => kontaktieren(b) }),
         ]),
       ]);
     }

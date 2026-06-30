@@ -34,9 +34,9 @@
 
     function chatLink(partnerId, partnerName) {
       return el('a', {
-        class: 'secondary',
+        class: 'mini accept',
         href: 'chat.html?partner=' + encodeURIComponent(partnerId) + '&name=' + encodeURIComponent(partnerName),
-        text: 'Chat starten',
+        text: '💬 Chat öffnen',
       });
     }
 
@@ -70,6 +70,23 @@
       return el('div', { class: 'anfrage-card' }, kinder);
     }
 
+    function rendeAnfragenListe(container, anfragen, kartenFn, leerText) {
+      const offene = anfragen.filter(a => a.status === 'offen');
+      const erledigt = anfragen.filter(a => a.status !== 'offen');
+      const kinder = [];
+      if (offene.length) kinder.push(...offene.map(kartenFn));
+      if (erledigt.length >= 4) {
+        kinder.push(el('details', {}, [
+          el('summary', { text: 'Bereits beantwortet (' + erledigt.length + ')' }),
+          ...erledigt.map(kartenFn),
+        ]));
+      } else if (erledigt.length > 0) {
+        kinder.push(...erledigt.map(kartenFn));
+      }
+      if (!kinder.length) kinder.push(el('div', { class: 'empty', text: leerText }));
+      container.replaceChildren(...kinder);
+    }
+
     async function beantworte(id, status) {
       const { ok, data } = await api('/anfragen/' + id, { method: 'PUT', body: { status } });
       if (!ok) return showMsg('anfragen-msg', data.error || 'Fehler.', 'error');
@@ -81,14 +98,14 @@
       const { ok, data } = await api('/anfragen');
       if (!ok) return showMsg('anfragen-msg', data.error || 'Fehler beim Laden.', 'error');
 
-      const ein = document.getElementById('anfragen-eingehend');
-      const aus = document.getElementById('anfragen-ausgehend');
-      ein.replaceChildren(...(data.eingehend.length
-        ? data.eingehend.map(eingehendKarte)
-        : [el('div', { class: 'empty', text: 'Keine eingehenden Anfragen.' })]));
-      aus.replaceChildren(...(data.ausgehend.length
-        ? data.ausgehend.map(ausgehendKarte)
-        : [el('div', { class: 'empty', text: 'Keine ausgehenden Anfragen.' })]));
+      rendeAnfragenListe(
+        document.getElementById('anfragen-eingehend'),
+        data.eingehend, eingehendKarte, 'Keine eingehenden Anfragen.'
+      );
+      rendeAnfragenListe(
+        document.getElementById('anfragen-ausgehend'),
+        data.ausgehend, ausgehendKarte, 'Keine ausgehenden Anfragen.'
+      );
     }
 
     if (requireAuth()) {

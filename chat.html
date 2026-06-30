@@ -110,8 +110,12 @@
       const text = input.value.trim();
       if (!text || !aktivePartnerId) return;
       input.value = '';
-      const { ok, data } = await api('/nachrichten', { method: 'POST', body: { an: aktivePartnerId, text } });
-      if (!ok) { showMsg('chat-msg', data.error || 'Senden fehlgeschlagen.', 'error'); return; }
+      const { ok, status, data } = await api('/nachrichten', { method: 'POST', body: { an: aktivePartnerId, text } });
+      if (!ok) {
+        if (status === 403) document.getElementById('chat-composer').style.display = 'none';
+        showMsg('chat-msg', status === 403 ? 'Chat ist erst möglich, sobald deine Anfrage akzeptiert wurde.' : (data.error || 'Senden fehlgeschlagen.'), 'error');
+        return;
+      }
       clearMsg('chat-msg');
       await ladeVerlauf();
       await ladeChats();
