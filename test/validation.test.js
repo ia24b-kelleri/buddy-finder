@@ -40,9 +40,10 @@ test('bereinigeLernzeiten verwirft ungültige Einträge (von >= bis, kaputte Zei
 
 test('baueProfil liefert sichere Defaults und gültigen Status', () => {
   const p = baueProfil({});
-  assert.deepEqual(p, { faecher: [], interessen: [], lernzeiten: [], status: 'sucht aktiv', bio: '' });
-  assert.equal(baueProfil({ status: 'quatsch' }).status, 'sucht aktiv');
-  assert.equal(baueProfil({ status: 'pausiert' }).status, 'pausiert');
+  assert.deepEqual(p, { faecher: [], interessen: [], lernzeiten: [], status: 'verfügbar', bio: '' });
+  assert.equal(baueProfil({ status: 'quatsch' }).status, 'verfügbar');
+  assert.equal(baueProfil({ status: 'beschäftigt' }).status, 'beschäftigt');
+  assert.equal(baueProfil({ status: 'sucht Lernpartner' }).status, 'sucht Lernpartner');
 });
 
 test('validiereAnfrage verlangt Empfänger', () => {

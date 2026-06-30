@@ -68,7 +68,7 @@ test('Profil speichern und wieder laden (MVP-03/04)', async () => {
     faecher: ['Mathematik', 'Informatik'],
     interessen: ['KI'],
     lernzeiten: [{ tag: 'Mo', von: '18:00', bis: '20:00' }],
-    status: 'sucht aktiv',
+    status: 'verfügbar',
     bio: 'Lerne gern abends',
   } });
   assert.equal(put.status, 200);
@@ -91,6 +91,7 @@ test('Buddies-Matching liefert passende Vorschläge (MVP-05)', async () => {
   assert.ok(ben, 'Ben sollte als Buddy erscheinen');
   assert.ok(ben.score > 0);
   assert.ok(ben.gemeinsameFaecher.includes('physik'));
+  assert.ok(['verfügbar', 'beschäftigt', 'sucht Lernpartner'].includes(ben.status), 'status muss ein gültiger Wert sein');
 });
 
 test('Kontaktanfrage senden, empfangen und annehmen (MVP-07)', async () => {
@@ -117,9 +118,20 @@ test('Chat: Nachrichten senden, Verlauf und Gesprächsliste', async () => {
   const a = await registriereUndLogin('chat-a@b.de', 'Chatty');
   const b = await registriereUndLogin('chat-b@b.de', 'Bea');
 
-  // leerer Text -> 400
+  // leerer Text -> 400 (wird vor der Verbindungsprüfung abgefangen)
   const leer = await req('/nachrichten', { method: 'POST', token: a.token, body: { an: b.id, text: '  ' } });
   assert.equal(leer.status, 400);
+
+  // ohne akzeptierte Anfrage -> 403
+  const ohneAnfrage = await req('/nachrichten', { method: 'POST', token: a.token, body: { an: b.id, text: 'Hallo?' } });
+  assert.equal(ohneAnfrage.status, 403);
+
+  // Anfrage senden und akzeptieren
+  const anfrage = await req('/anfragen', { method: 'POST', token: a.token, body: { an: b.id } });
+  assert.equal(anfrage.status, 201);
+  const { data: anfrageData } = await req('/anfragen', { token: b.token });
+  const anfrageId = anfrageData.eingehend[0].id;
+  await req('/anfragen/' + anfrageId, { method: 'PUT', token: b.token, body: { status: 'akzeptiert' } });
 
   // Hin und Her
   await req('/nachrichten', { method: 'POST', token: a.token, body: { an: b.id, text: 'Hallo Bea!' } });

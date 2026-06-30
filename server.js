@@ -91,6 +91,13 @@ const saveAnfragen = anfragen => writeJson(ANFRAGEN_FILE, anfragen);
 const getNachrichten = () => readJson(NACHRICHTEN_FILE);
 const saveNachrichten = nachrichten => writeJson(NACHRICHTEN_FILE, nachrichten);
 
+function sindVerbunden(idA, idB) {
+  return getAnfragen().some(
+    a => a.status === 'akzeptiert' &&
+      ((a.von === idA && a.an === idB) || (a.von === idB && a.an === idA))
+  );
+}
+
 // Stellt sicher, dass ein User ein vollständiges Profil hat (Migration alter User).
 function mitProfil(user) {
   return { ...user, profil: baueProfil(user.profil) };
@@ -244,7 +251,14 @@ app.get('/buddies', authMiddleware, (req, res) => {
   const ich = users.find(u => u.id === req.user.id);
   if (!ich) return res.status(404).json({ error: 'User nicht gefunden' });
 
-  const buddies = findeBuddies(ich, users);
+  const anfragen = getAnfragen();
+  const buddies = findeBuddies(ich, users).map(b => ({
+    ...b,
+    verbunden: anfragen.some(
+      a => a.status === 'akzeptiert' &&
+        ((a.von === ich.id && a.an === b.id) || (a.von === b.id && a.an === ich.id))
+    ),
+  }));
   res.json({ buddies, anzahl: buddies.length });
 });
 
@@ -347,6 +361,9 @@ app.post('/nachrichten', authMiddleware, userMussExistieren, (req, res) => {
   if (!getUsers().find(u => u.id === an)) {
     return res.status(404).json({ error: 'Empfänger nicht gefunden.' });
   }
+  if (!sindVerbunden(req.user.id, an)) {
+    return res.status(403).json({ error: 'Kein Chat möglich – die Kontaktanfrage muss zuerst akzeptiert werden.' });
+  }
 
   const nachrichten = getNachrichten();
   const neue = {
@@ -369,6 +386,9 @@ app.get('/nachrichten/:partnerId', authMiddleware, (req, res) => {
 
   const partner = getUsers().find(u => u.id === partnerId);
   if (!partner) return res.status(404).json({ error: 'Person nicht gefunden.' });
+  if (!sindVerbunden(meineId, partnerId)) {
+    return res.status(403).json({ error: 'Kein Chat möglich – die Kontaktanfrage muss zuerst akzeptiert werden.' });
+  }
 
   const verlauf = getNachrichten()
     .filter(n =>
@@ -396,6 +416,7 @@ app.get('/chats', authMiddleware, (req, res) => {
   }
 
   const chats = [...proPartner.entries()]
+    .filter(([partnerId]) => sindVerbunden(meineId, partnerId))
     .map(([partnerId, letzte]) => ({
       partnerId,
       partnerName: nameVon(partnerId),

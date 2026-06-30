@@ -34,8 +34,9 @@
         <div class="field">
           <label for="p-status">Status</label>
           <select id="p-status">
-            <option value="sucht aktiv">Sucht aktiv Lernpartner</option>
-            <option value="pausiert">Pausiert</option>
+            <option value="verfügbar">Verfügbar</option>
+            <option value="beschäftigt">Beschäftigt</option>
+            <option value="sucht Lernpartner">Sucht Lernpartner</option>
           </select>
         </div>
         <div class="field">
@@ -87,7 +88,7 @@
       const p = data.profil || {};
       document.getElementById('p-faecher').value = (p.faecher || []).join(', ');
       document.getElementById('p-interessen').value = (p.interessen || []).join(', ');
-      document.getElementById('p-status').value = p.status || 'sucht aktiv';
+      document.getElementById('p-status').value = p.status || 'verfügbar';
       document.getElementById('p-bio').value = p.bio || '';
       listePreview('p-faecher', 'preview-faecher');
       listePreview('p-interessen', 'preview-interessen');

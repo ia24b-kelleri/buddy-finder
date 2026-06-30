@@ -64,8 +64,16 @@
     // ── Verlauf ──
     async function ladeVerlauf() {
       if (!aktivePartnerId) return;
-      const { ok, data } = await api('/nachrichten/' + aktivePartnerId);
-      if (!ok) return;
+      const { ok, status, data } = await api('/nachrichten/' + aktivePartnerId);
+      if (!ok) {
+        if (status === 403) {
+          document.getElementById('chat-thread').replaceChildren(
+            el('div', { class: 'empty', text: data.error || 'Kein Chat möglich.' })
+          );
+          document.getElementById('chat-composer').style.display = 'none';
+        }
+        return;
+      }
       const thread = document.getElementById('chat-thread');
       if (!data.nachrichten.length) {
         thread.replaceChildren(el('div', { class: 'empty', text: 'Noch keine Nachrichten – schreib die erste!' }));

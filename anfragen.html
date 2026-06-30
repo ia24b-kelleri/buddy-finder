@@ -32,6 +32,14 @@
       return { offen: 'offen', akzeptiert: 'akzeptiert ✅', abgelehnt: 'abgelehnt ✕' }[s] || s;
     }
 
+    function chatLink(partnerId, partnerName) {
+      return el('a', {
+        class: 'secondary',
+        href: 'chat.html?partner=' + encodeURIComponent(partnerId) + '&name=' + encodeURIComponent(partnerName),
+        text: 'Chat starten',
+      });
+    }
+
     function eingehendKarte(a) {
       const kinder = [
         el('div', { class: 'buddy-name', text: 'Von: ' + a.vonName }),
@@ -44,15 +52,22 @@
           el('button', { class: 'mini reject', text: 'Ablehnen', onclick: () => beantworte(a.id, 'abgelehnt') }),
         ]));
       }
+      if (a.status === 'akzeptiert') {
+        kinder.push(el('div', { class: 'row-actions' }, [chatLink(a.von, a.vonName)]));
+      }
       return el('div', { class: 'anfrage-card' }, kinder);
     }
 
     function ausgehendKarte(a) {
-      return el('div', { class: 'anfrage-card' }, [
+      const kinder = [
         el('div', { class: 'buddy-name', text: 'An: ' + a.anName }),
         el('div', { class: 'buddy-sub', text: a.nachricht || '(keine Nachricht)' }),
         el('div', { class: 'buddy-sub', text: 'Status: ' + statusText(a.status) }),
-      ]);
+      ];
+      if (a.status === 'akzeptiert') {
+        kinder.push(el('div', { class: 'row-actions' }, [chatLink(a.an, a.anName)]));
+      }
+      return el('div', { class: 'anfrage-card' }, kinder);
     }
 
     async function beantworte(id, status) {

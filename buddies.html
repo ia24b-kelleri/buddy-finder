@@ -24,7 +24,7 @@
   <script src="app.js"></script>
   <script>
     function buddyKarte(b) {
-      const statusKlasse = b.status === 'pausiert' ? 'pause' : 'aktiv';
+      const statusKlasse = b.status === 'beschäftigt' ? 'pause' : 'aktiv';
       const chips = el('div', { class: 'chip-row' }, [
         ...b.gemeinsameFaecher.map(f => chip('📘 ' + f, 'match')),
         ...b.gemeinsameInteressen.map(i => chip('★ ' + i, 'match')),
@@ -38,13 +38,14 @@
               el('span', { class: 'status-pill ' + statusKlasse, text: b.status }),
             ]),
             el('div', { class: 'buddy-sub', text: 'Klasse: ' + (b.klasse || '–') }),
+            el('div', { class: 'buddy-sub', text: 'Fächer: ' + (b.faecher.length ? b.faecher.join(', ') : '–') }),
           ]),
-          el('span', { class: 'score-badge', text: 'Match ' + b.score }),
+          el('span', { class: 'score-badge', text: 'Match ' + b.prozent + ' %' }),
         ]),
         chips,
         el('div', { class: 'row-actions' }, [
-          el('button', { class: 'secondary', text: 'Kontaktieren', onclick: () => kontaktieren(b) }),
-          el('a', { class: 'secondary', href: 'chat.html?partner=' + encodeURIComponent(b.id) + '&name=' + encodeURIComponent(b.name), text: 'Chat starten' }),
+          ...(b.verbunden ? [] : [el('button', { class: 'secondary', text: 'Kontaktieren', onclick: () => kontaktieren(b) })]),
+          ...(b.verbunden ? [el('a', { class: 'secondary', href: 'chat.html?partner=' + encodeURIComponent(b.id) + '&name=' + encodeURIComponent(b.name), text: 'Chat starten' })] : []),
         ]),
       ]);
     }
